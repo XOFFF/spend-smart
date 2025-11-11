@@ -1,0 +1,32 @@
+services:
+  spendsmart:
+    container_name: spend_smart_api
+    depends_on:
+      - db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__WebApiDatabase=Host=db;Port=5432;Database=WebDb;Username=postgres;Password=1594
+    image: ${DOCKER_REGISTRY-}spendsmart
+    build:
+      context: .
+      dockerfile: SpendSmart/Dockerfile
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+    command: ["dotnet", "SpendSmart.dll"]
+
+  db:
+    image: postgres:latest
+    container_name: spend_smart_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1594
+      POSTGRES_DB: WebDb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+
+volumes:
+  pgdata:

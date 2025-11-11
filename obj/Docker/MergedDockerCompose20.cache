@@ -1,0 +1,84 @@
+name: dockercompose17493980026564833080
+services:
+  db:
+    container_name: spendsmart-postgres
+    environment:
+      POSTGRES_DB: WebDb
+      POSTGRES_PASSWORD: postgrespw
+      POSTGRES_USER: postgres
+    image: postgres:15
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 5432
+        published: "5432"
+        protocol: tcp
+    restart: always
+    volumes:
+      - type: volume
+        source: postgres_data
+        target: /var/lib/postgresql/data
+        volume: {}
+  spendsmart:
+    build:
+      context: C:\Users\marke\source\repos\SpendSmart_PostgreSQL
+      dockerfile: SpendSmart/Dockerfile
+    depends_on:
+      db:
+        condition: service_started
+        required: true
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_HTTP_PORTS: "5000"
+      ASPNETCORE_HTTPS_PORTS: "5001"
+      ConnectionStrings__WebApiDatabase: Host=db;Port=5432;Database=WebDb;Username=postgres;Password=postgrespw
+    image: spendsmart
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 5000
+        published: "5000"
+        protocol: tcp
+      - mode: ingress
+        target: 5001
+        published: "5001"
+        protocol: tcp
+      - mode: ingress
+        target: 5000
+        protocol: tcp
+      - mode: ingress
+        target: 5001
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: C:\Users\marke\AppData\Roaming/Microsoft/UserSecrets
+        target: C:\Users\ContainerUser\AppData\Roaming\Microsoft\UserSecrets
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: bind
+        source: C:\Users\marke\AppData\Roaming/Microsoft/UserSecrets
+        target: C:\Users\ContainerAdministrator\AppData\Roaming\Microsoft\UserSecrets
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: bind
+        source: C:\Users\marke\AppData\Roaming/ASP.NET/Https
+        target: C:\Users\ContainerUser\AppData\Roaming\ASP.NET\Https
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: bind
+        source: C:\Users\marke\AppData\Roaming/ASP.NET/Https
+        target: C:\Users\ContainerAdministrator\AppData\Roaming\ASP.NET\Https
+        read_only: true
+        bind:
+          create_host_path: true
+networks:
+  default:
+    name: dockercompose17493980026564833080_default
+volumes:
+  postgres_data:
+    name: dockercompose17493980026564833080_postgres_data
